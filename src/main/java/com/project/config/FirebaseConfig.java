@@ -1,9 +1,11 @@
+package com.project.config;
+
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import org.springframework.context.annotation.Configuration;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
@@ -14,6 +16,11 @@ public class FirebaseConfig {
     public void initFirebase() {
         try {
             String firebaseConfig = System.getenv("FIREBASE_KEY");
+
+            if (firebaseConfig == null || firebaseConfig.isBlank()) {
+                System.out.println("ℹ️ FIREBASE_KEY not set; skipping Firebase initialization");
+                return;
+            }
 
             InputStream serviceAccount =
                     new ByteArrayInputStream(firebaseConfig.getBytes());

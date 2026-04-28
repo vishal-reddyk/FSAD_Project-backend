@@ -11,7 +11,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/property")
-@CrossOrigin(origins = "http://localhost:3000")
 public class PropertyController {
 
     @Autowired
