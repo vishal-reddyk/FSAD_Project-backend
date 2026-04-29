@@ -43,7 +43,7 @@ public class UserController {
                 return "Invalid Credentials";
             }
 
-            User dbUser = userRepository.findByEmail(loginUser.getEmail());
+            User dbUser = userRepository.findFirstByEmailOrderByIdAsc(loginUser.getEmail());
             if (dbUser == null) {
                 return "User Not Found";
             }
@@ -117,7 +117,7 @@ public class UserController {
         }
 
         try {
-            User user = userRepository.findByEmail(request.getEmail());
+            User user = userRepository.findFirstByEmailOrderByIdAsc(request.getEmail());
             if (user == null) {
                 response.put("message", "User not found");
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
@@ -131,6 +131,7 @@ public class UserController {
         } catch (Exception e) {
             e.printStackTrace();
             response.put("message", "Error setting password");
+            response.put("error", getRootCauseMessage(e));
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
@@ -146,7 +147,7 @@ public class UserController {
         }
 
         try {
-            User user = userRepository.findByEmail(request.getEmail());
+            User user = userRepository.findFirstByEmailOrderByIdAsc(request.getEmail());
             if (user == null) {
                 response.put("message", "User not found");
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
@@ -180,7 +181,7 @@ public class UserController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
 
-            User user = userRepository.findByEmail(request.getEmail());
+            User user = userRepository.findFirstByEmailOrderByIdAsc(request.getEmail());
             if (user == null) {
                 response.put("message", "User not found");
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
@@ -237,5 +238,19 @@ public class UserController {
 
         public String getOtp() { return otp; }
         public void setOtp(String otp) { this.otp = otp; }
+    }
+
+    private String getRootCauseMessage(Exception e) {
+        Throwable cause = e;
+        while (cause.getCause() != null) {
+            cause = cause.getCause();
+        }
+
+        String message = cause.getMessage();
+        if (message == null || message.isBlank()) {
+            return cause.getClass().getSimpleName();
+        }
+
+        return message;
     }
 }

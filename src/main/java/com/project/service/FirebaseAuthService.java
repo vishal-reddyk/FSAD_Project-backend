@@ -9,7 +9,7 @@ import com.project.util.PasswordUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
+import java.util.Map;
 
 @Service
 public class FirebaseAuthService {
@@ -22,7 +22,10 @@ public class FirebaseAuthService {
         String uid = decodedToken.getUid();
         String email = decodedToken.getEmail();
         String name = decodedToken.getName();
-        Object providerClaim = decodedToken.getClaims().get("firebase.sign_in_provider");
+        Object firebaseClaim = decodedToken.getClaims().get("firebase");
+        Object providerClaim = firebaseClaim instanceof Map<?, ?> firebaseMap
+                ? firebaseMap.get("sign_in_provider")
+                : decodedToken.getClaims().get("firebase.sign_in_provider");
         String provider = providerClaim != null ? providerClaim.toString() : null;
         if ("google.com".equals(provider)) {
             provider = "google";
@@ -37,13 +40,16 @@ public class FirebaseAuthService {
         
         if (user == null) {
             isNewUser = true;
-            user = new User();
+            user = userRepository.findFirstByEmailOrderByIdAsc(email);
+            if (user == null) {
+                user = new User();
+                user.setEmail(email);
+                user.setRole("USER");
+                user.setPassword(null); // Don't set password for new users yet
+            }
             user.setFirebaseUid(uid);
-            user.setEmail(email);
             user.setName(name);
             user.setProvider(provider);
-            user.setRole("USER");
-            user.setPassword(null); // Don't set password for new users yet
             userRepository.save(user);
         }
 

@@ -40,7 +40,7 @@ public class AdminController {
         }
 
         String hashedPassword = PasswordUtil.encrypt(adminUser.getPassword());
-        User existing = userRepository.findByEmail(normalizedEmail);
+        User existing = userRepository.findFirstByEmailOrderByIdAsc(normalizedEmail);
         if (existing != null) {
             existing.setEmail(normalizedEmail);
             existing.setPassword(hashedPassword);
@@ -63,7 +63,7 @@ public class AdminController {
             return "Access denied";
         }
 
-        User dbUser = userRepository.findByEmail(normalizedEmail);
+        User dbUser = userRepository.findFirstByEmailOrderByIdAsc(normalizedEmail);
         if (dbUser == null) {
             return "Admin Not Found";
         }

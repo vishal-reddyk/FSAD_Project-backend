@@ -30,7 +30,7 @@ public class AuthController {
             return "Email is required";
         }
 
-        if (userRepository.findByEmail(email) != null) {
+        if (userRepository.findFirstByEmailOrderByIdAsc(email) != null) {
             return "Email already registered";
         }
 
@@ -59,7 +59,7 @@ public class AuthController {
             return "Invalid OTP";
         }
 
-        if (userRepository.findByEmail(email) != null) {
+        if (userRepository.findFirstByEmailOrderByIdAsc(email) != null) {
             return "User already registered";
         }
 
@@ -115,7 +115,7 @@ public class AuthController {
             return response;
         }
 
-        User user = userRepository.findByEmail(email);
+        User user = userRepository.findFirstByEmailOrderByIdAsc(email);
         if (user == null) {
             user = new User();
             user.setEmail(email);
